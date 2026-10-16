@@ -11,6 +11,7 @@ from app import llm
 from app.models import CoverLetter, Job, ScoreResult, StructuredCV
 from app.services.cv import guard
 from app.services.cv.language import find_letter_banned
+from app.services.naming import document_name
 from app.services.scoring.keywords import find_terms
 
 from .writer import write_cover_letter_docx
@@ -157,11 +158,18 @@ def _assemble(paragraphs: list[str], cv: StructuredCV) -> str:
     return "\n\n".join([GREETING, *paragraphs, f"{SIGN_OFF}\n{cv.full_name}"])
 
 
-def save_cover_letter(text: str, cv: StructuredCV, out_dir: Path) -> CoverLetter:
+def cover_letter_paths(cv: StructuredCV, company: str, out_dir: Path) -> tuple[Path, Path]:
+    out_dir = Path(out_dir)
+    stem = document_name("Cover_Letter", cv.full_name, company, "docx").removesuffix(".docx")
+    return out_dir / f"{stem}.txt", out_dir / f"{stem}.docx"
+
+
+def save_cover_letter(text: str, cv: StructuredCV, out_dir: Path, company: str = "") -> CoverLetter:
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "cover_letter.txt").write_text(text, encoding="utf-8")
-    docx_path = write_cover_letter_docx(text, cv, out_dir / "cover_letter.docx")
+    txt_path, docx_target = cover_letter_paths(cv, company, out_dir)
+    txt_path.write_text(text, encoding="utf-8")
+    docx_path = write_cover_letter_docx(text, cv, docx_target)
     return CoverLetter(text=text, docx_path=str(docx_path))
 
 
@@ -186,4 +194,4 @@ async def write_cover_letter(cv: StructuredCV, job: Job, score: ScoreResult, out
             "No cover letter was written: the AI draft kept adding details that are not in your CV, "
             "and too little was left after removing them. Try again."
         )
-    return save_cover_letter(_assemble(paragraphs, cv), cv, out_dir)
+    return save_cover_letter(_assemble(paragraphs, cv), cv, out_dir, job.company)

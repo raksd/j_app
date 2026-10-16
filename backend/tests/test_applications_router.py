@@ -47,11 +47,11 @@ def test_create_list_and_patch(client, tmp_path):
     assert rec["date_applied"] == date.today().isoformat()
     assert rec["requirements_not_matched"] == ["Rust", "Kafka"]
     assert rec["cv_file"] == "output/job1/cv.docx"
-    assert rec["cover_letter_file"] == "output/job1/cover_letter.txt"
-    assert (tmp_path / "output" / "job1" / "cover_letter.txt").read_text() == "Edited letter"
+    assert rec["cover_letter_file"] == "output/job1/Cover_Letter_Acme.txt"
+    assert (tmp_path / "output" / "job1" / "Cover_Letter_Acme.txt").read_text() == "Edited letter"
     from docx import Document
 
-    docx_text = "\n".join(p.text for p in Document(str(tmp_path / "output" / "job1" / "cover_letter.docx")).paragraphs)
+    docx_text = "\n".join(p.text for p in Document(str(tmp_path / "output" / "job1" / "Cover_Letter_Acme.docx")).paragraphs)
     assert "Edited letter" in docx_text
     assert (tmp_path / "tracker.xlsx").exists()
 
