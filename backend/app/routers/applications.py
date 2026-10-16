@@ -59,10 +59,10 @@ def create_application(req: CreateRequest):
 
     out_dir = config.output_dir() / job.id
     out_dir.mkdir(parents=True, exist_ok=True)
-    from app.services.cover_letter import save_cover_letter
+    from app.services.cover_letter.generate import cover_letter_paths, save_cover_letter
 
-    save_cover_letter(req.cover_letter_text, prepared.tailored_cv.cv, out_dir)
-    letter_txt = out_dir / "cover_letter.txt"
+    save_cover_letter(req.cover_letter_text, prepared.tailored_cv.cv, out_dir, job.company)
+    letter_txt, _ = cover_letter_paths(prepared.tailored_cv.cv, job.company, out_dir)
 
     record = ApplicationRecord(
         id=str(uuid.uuid4()),

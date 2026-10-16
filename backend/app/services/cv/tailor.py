@@ -5,6 +5,7 @@ from pathlib import Path
 
 from app import llm
 from app.models import Job, ScoreResult, StructuredCV, TailoredCV
+from app.services.naming import document_name
 
 from . import guard
 from .guard import TailorOutput
@@ -128,7 +129,7 @@ def _apply(out: TailorOutput, original: StructuredCV) -> tuple[StructuredCV, lis
 
 async def tailor_cv(cv: StructuredCV, job: Job, score: ScoreResult, out_dir: Path) -> TailoredCV:
     out_dir = Path(out_dir)
-    out_path = out_dir / "cv.docx"
+    out_path = out_dir / document_name("CV", cv.full_name, job.company, "docx")
     total_bullets = sum(len(r.bullets) for r in cv.experience) or 1
 
     def original(note: str) -> TailoredCV:

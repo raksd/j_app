@@ -51,7 +51,8 @@ def test_clean_letter_is_saved_with_txt_and_docx(monkeypatch, tmp_path, sample_c
     assert calls["n"] == 1
     assert letter.text.startswith("Dear Hiring Manager,")
     assert letter.text.rstrip().endswith("Kind regards,\nJANE EXAMPLE")
-    assert (tmp_path / "cover_letter.txt").read_text(encoding="utf-8") == letter.text
+    assert Path(letter.docx_path).name == f"JE_Cover_Letter_{sample_job.company}.docx".replace(" ", "_")
+    assert Path(letter.docx_path).with_suffix(".txt").read_text(encoding="utf-8") == letter.text
     doc = Document(letter.docx_path)
     body = "\n".join(p.text for p in doc.paragraphs)
     assert "JANE EXAMPLE" in body and "jane@example.com" in body and "07000000000" in body

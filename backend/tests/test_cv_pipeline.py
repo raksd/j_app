@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 
 from docx import Document
 
@@ -132,7 +133,8 @@ def test_faithful_tailoring_is_applied(monkeypatch, tmp_path, sample_cv, sample_
     assert result.cv.skills[0].startswith("Cloud & Engineering")
     assert result.cv.experience[0].bullets[0] == sample_cv.experience[0].bullets[3]
     assert sorted(result.cv.experience[0].bullets) == sorted(sample_cv.experience[0].bullets)
-    assert (tmp_path / "cv.docx").exists()
+    assert Path(result.docx_path).exists()
+    assert Path(result.docx_path).name == f"JE_CV_{sample_job.company}.docx".replace(" ", "_")
 
 
 def test_invented_content_never_reaches_the_cv(monkeypatch, tmp_path, sample_cv, sample_job, sample_score):
@@ -171,7 +173,7 @@ def test_mostly_rejected_rewrite_returns_original_with_note(monkeypatch, tmp_pat
     result = tailor(sample_cv, sample_job, sample_score, tmp_path)
     assert result.cv == sample_cv
     assert "unchanged" in result.changes[0].lower()
-    assert (tmp_path / "cv.docx").exists()
+    assert Path(result.docx_path).exists()
 
 
 def test_llm_failure_returns_original_cv(monkeypatch, tmp_path, sample_cv, sample_job, sample_score):
@@ -182,7 +184,7 @@ def test_llm_failure_returns_original_cv(monkeypatch, tmp_path, sample_cv, sampl
     result = tailor(sample_cv, sample_job, sample_score, tmp_path)
     assert result.cv == sample_cv
     assert "unavailable" in result.changes[0]
-    assert (tmp_path / "cv.docx").exists()
+    assert Path(result.docx_path).exists()
 
 
 def test_repair_retry_receives_problem_feedback(monkeypatch, tmp_path, sample_cv, sample_job, sample_score):
