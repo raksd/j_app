@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic>=2
+python-multipart
+openpyxl
+python-docx
+httpx
+anthropic
+claude-agent-sdk
+python-dotenv
+pytest

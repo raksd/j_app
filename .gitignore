@@ -1,0 +1,16 @@
+# Secrets: API keys live here and must never be committed
+backend/.env
+
+# Personal data: your CV, generated files and the tracker
+data/
+
+# Python
+backend/.venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
