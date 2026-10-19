@@ -337,6 +337,27 @@ def _wall() -> JobLinkError:
     return JobLinkError(LOGIN_WALL_MESSAGE, needs_paste=True)
 
 
+_LINKEDIN_TITLE_WITH_PLACE = re.compile(
+    r"^(?P<company>.+?)\s+hiring\s+(?P<title>.+)\s+in\s+(?P<location>.+?)\s*\|\s*LinkedIn\s*$", re.IGNORECASE
+)
+_LINKEDIN_TITLE = re.compile(r"^(?P<company>.+?)\s+hiring\s+(?P<title>.+?)\s*\|\s*LinkedIn\s*$", re.IGNORECASE)
+
+
+def split_linkedin_title(page_title: str) -> tuple[str, str, str] | None:
+    """LinkedIn page titles read '<Company> hiring <Title> in <Location> | LinkedIn'."""
+    text = re.sub(r"\s+", " ", page_title or "").strip()
+    match = _LINKEDIN_TITLE_WITH_PLACE.match(text) or _LINKEDIN_TITLE.match(text)
+    if not match:
+        return None
+    parts = match.groupdict(default="")
+    return parts["company"].strip(), parts["title"].strip(), parts.get("location", "").strip()
+
+
+def _is_linkedin(url: str) -> bool:
+    host = (urlsplit(url).hostname or "").lower()
+    return host == "linkedin.com" or host.endswith(".linkedin.com")
+
+
 async def extract_job(html: str, final_url: str) -> Extracted:
     if _WALL_URL.search(urlsplit(final_url).path):
         raise _wall()
@@ -349,6 +370,11 @@ async def extract_job(html: str, final_url: str) -> Extracted:
     desc_from_ld = bool(data.description)
     if not data.title:
         data.title = _meta(page, "og:title", "twitter:title") or _text(page.title)
+        split = split_linkedin_title(data.title) if _is_linkedin(final_url) else None
+        if split:
+            company, data.title, location = split
+            data.company = data.company or company
+            data.location = data.location or location
     meta_desc = _meta(page, "og:description", "twitter:description", "description")
     if len(meta_desc) > len(data.description):
         data.description = meta_desc
