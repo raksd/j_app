@@ -4,9 +4,11 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 WorkMode = Literal["remote", "hybrid", "onsite", "any", "unknown"]
+
+FOLLOW_UP_AFTER_DAYS = 7
 
 
 class ApplicationStatus(str, Enum):
@@ -111,3 +113,12 @@ class ApplicationRecord(BaseModel):
     status: ApplicationStatus = ApplicationStatus.APPLIED
     notes: str = ""
     last_updated: datetime
+
+    @computed_field
+    @property
+    def follow_up_due(self) -> bool:
+        return needs_follow_up(self.status, self.date_applied, date.today())
+
+
+def needs_follow_up(status: ApplicationStatus, date_applied: date, today: date) -> bool:
+    return status == ApplicationStatus.APPLIED and (today - date_applied).days >= FOLLOW_UP_AFTER_DAYS

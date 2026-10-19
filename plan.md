@@ -117,7 +117,7 @@ All routes under `/api`. JSON in, JSON out, except uploads and downloads.
 | POST | `/jobs/from-url` | `{url, title?, company?, description?}` | `JobWithScore`; 422 = page unreadable (login wall), UI asks user to paste title/company/description; 400 = invalid or blocked URL |
 | POST | `/jobs/prepare` | `{job: Job}` | `PreparedApplication` |
 | POST | `/applications` | `{prepared: PreparedApplication, cover_letter_text: string}` | `ApplicationRecord` |
-| GET | `/applications` | | `ApplicationRecord[]` |
+| GET | `/applications` | | `ApplicationRecord[]`; each row has `follow_up_due` (true when status is Applied and 7+ days have passed since applied) |
 | PATCH | `/applications/{id}/status` | `{status, notes?}` | `ApplicationRecord` |
 | GET | `/files/{job_id}/{filename}` | | file download (only inside `data/output`) |
 | GET | `/health` | | `{ok: true}` |

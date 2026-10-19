@@ -37,6 +37,7 @@ button.tab.active { background: #f4f6f8; color: #1f3a5f; font-weight: 600; }
 .badge.good { background: #1e8e3e; }
 .badge.ok { background: #b7791f; }
 .badge.poor { background: #c0392b; }
+.due { display: inline-block; border-radius: 6px; padding: 0.15rem 0.4rem; font-weight: 700; color: #7a4a00; background: #fdf3d8; }
 .split { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr); gap: 1rem; align-items: start; }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr; } }
 .jobs li { margin-bottom: 0.4rem; }
