@@ -300,6 +300,53 @@ def test_missing_title_asks_for_paste(monkeypatch):
     assert exc.value.needs_paste is True and "title" in exc.value.message
 
 
+LINKEDIN_TITLE = "JPMorganChase hiring Applied AI ML - Associate/VP in Greater London, England, United Kingdom | LinkedIn"
+
+
+def linkedin_page(title=LINKEDIN_TITLE):
+    return f"<html><head><title>{title}</title></head><body><div>{DESC}</div></body></html>"
+
+
+def test_split_linkedin_title_gives_company_title_and_location():
+    assert extract.split_linkedin_title(LINKEDIN_TITLE) == (
+        "JPMorganChase",
+        "Applied AI ML - Associate/VP",
+        "Greater London, England, United Kingdom",
+    )
+
+
+def test_split_linkedin_title_keeps_in_inside_the_job_title():
+    assert extract.split_linkedin_title("Acme Ltd hiring Engineer in Test in Leeds, England | LinkedIn") == (
+        "Acme Ltd",
+        "Engineer in Test",
+        "Leeds, England",
+    )
+
+
+def test_split_linkedin_title_without_location():
+    assert extract.split_linkedin_title("Acme Ltd hiring Data Scientist | LinkedIn") == ("Acme Ltd", "Data Scientist", "")
+
+
+@pytest.mark.parametrize("title", ["Senior Engineer at Acme | LinkedIn", "Acme hiring Engineer", "", "Python jobs"])
+def test_split_linkedin_title_ignores_other_titles(title):
+    assert extract.split_linkedin_title(title) is None
+
+
+def test_linkedin_page_title_is_split_into_company_and_title(monkeypatch):
+    serve(monkeypatch, linkedin_page())
+    job = run(manual.job_from_url("https://www.linkedin.com/jobs/view/4462750182"))
+    assert job.company == "JPMorganChase"
+    assert job.title == "Applied AI ML - Associate/VP"
+    assert job.location == "Greater London, England, United Kingdom"
+
+
+def test_title_with_hiring_on_a_non_linkedin_site_is_left_alone(monkeypatch):
+    serve(monkeypatch, linkedin_page("Acme hiring Engineer in London | LinkedIn"))
+    job = run(manual.job_from_url("https://example.com/jobs/77"))
+    assert job.company == ""
+    assert job.title == "Acme hiring Engineer in London | LinkedIn"
+
+
 def test_pasted_description_skips_fetch(monkeypatch):
     async def boom(*args, **kwargs):
         raise AssertionError("must not fetch")
