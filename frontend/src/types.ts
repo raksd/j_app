@@ -103,4 +103,5 @@ export interface ApplicationRecord {
   status: ApplicationStatus;
   notes: string;
   last_updated: string;
+  follow_up_due: boolean;
 }

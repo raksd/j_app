@@ -84,6 +84,7 @@ export default function TrackerPage() {
             <thead>
               <tr>
                 <th>Date applied</th>
+                <th>Follow up</th>
                 <th>Company</th>
                 <th>Job title</th>
                 <th>Work mode</th>
@@ -100,6 +101,7 @@ export default function TrackerPage() {
                 return (
                   <tr key={r.id}>
                     <td>{r.date_applied}</td>
+                    <td>{r.follow_up_due && <span className="due">Follow up</span>}</td>
                     <td>{r.company}</td>
                     <td>
                       <a href={r.job_url} target="_blank" rel="noreferrer">
