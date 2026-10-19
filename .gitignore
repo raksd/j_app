@@ -10,6 +10,8 @@ backend/.venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+*.log
+*.log.err
 
 # Frontend
 frontend/node_modules/
