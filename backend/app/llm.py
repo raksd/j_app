@@ -46,6 +46,7 @@ async def _complete_claude_code(system: str, user: str) -> str:
         tools=[],
         max_turns=1,
         setting_sources=[],
+        extra_args={"no-session-persistence": None},
     )
     parts: list[str] = []
     async with _claude_code_slots:
